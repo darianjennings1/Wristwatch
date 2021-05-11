@@ -56,9 +56,8 @@ component stopwatch is
 end component;
 
 component bcd2seg is
-	port(main_clk,reset: in bit;
-			displayed_number: in unsigned (31 downto 0);
-			LED_out : out STD_LOGIC_VECTOR (6 downto 0)
+	port(BCD: in bit;
+			seg : out STD_LOGIC_VECTOR (6 downto 0)
 	);
 end component;
 
@@ -130,7 +129,7 @@ begin
 			end if;
 			
 			if am_pm = '0' then
-				dispHL <= "10101111";
+				dispHL <= "1010  1111";
 			else		
 				dispHL <= "10111111";
 			end if;
