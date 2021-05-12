@@ -57,7 +57,7 @@ end component;
 
 component bcd2seg is
 	port(BCD: in bit;
-			seg : out STD_LOGIC_VECTOR (6 downto 0)
+			seg : out bit_vector (6 downto 0)
 	);
 end component;
 
