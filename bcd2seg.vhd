@@ -4,7 +4,7 @@ use IEEE.numeric_bit.all;
 entity bcd2seg is
 	port(BCD: in unsigned(3 downto 0);	
 	     seg: out bit_vector (6 downto 0)); 
-end sevenseg;
+end bcd2seg;
 
 		 
 
