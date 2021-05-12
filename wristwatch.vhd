@@ -20,8 +20,8 @@ use IEEE.std_logic_unsigned.all;
 
 entity wristwatch is
 	port(B1, B2, B3, main_clk: in bit;
-		 HEX7, HEX6, HEX5, HEX4, HEX3, HEX2, HEX1, HEX0 : out bit_vector (0 to 6);
-		ring_alarm ,alarm_set_disp: out bit
+		  HEX7, HEX6, HEX5, HEX4, HEX3, HEX2, HEX1, HEX0 : out bit_vector (0 to 6);
+		  ring_alarm ,alarm_set_disp: out bit
 	);
 end wristwatch;
 
@@ -31,8 +31,7 @@ architecture wristwatch1 of wristwatch is
 				set_alarm_min, stop_watch);
 	
 	signal state, nextstate: st_type;
-	signal inch, incm, alarm_off, set_alarm, incha, incma,
-				start_stop, reset: bit;
+	signal inch, incm, alarm_off, set_alarm, incha, incma, start_stop, reset: bit;
 	
 	signal disp1_input: unsigned(31 downto 0);
 	signal counter : integer:=0;
@@ -40,7 +39,6 @@ architecture wristwatch1 of wristwatch is
 	signal hours, ahours, minutes, aminutes, seconds, dispHL:  unsigned(7 downto 0);
 	signal swhundreths, swseconds, swminutes:  unsigned(7 downto 0);
 	signal clk :  bit;
-	-- signal b1p,b2p,b3p :bit;
 	
 	
 component clock is
@@ -56,7 +54,7 @@ component stopwatch is
 end component;
 
 component bcd2seg is
-	port(BCD: in bit;
+	port(BCD: in unsigned(3 downto 0);
 			seg : out bit_vector (6 downto 0)
 	);
 end component;
@@ -66,12 +64,12 @@ begin
 
 	clock_map: clock port map(clk, inch, incm, incha, incma, set_alarm, alarm_off,
 								hours, ahours, minutes, aminutes, seconds, am_pm,
-								am_pm, ring, alarm_set);
+								aam_pm, ring, alarm_set);
 	stopwatch_map: stopwatch port map(clk, reset, start_stop, swhundreths,
 								swseconds, swminutes);
 	
 	
-	disp_hrs_hi: bcd2seg port map(hours(7 downto 4), HEX7); 			   -- these 2 should be blank
+	disp_hrs_hi: bcd2seg port map(hours(7 downto 4), HEX7); 			   
 	disp_hrs_lo: bcd2seg port map(hours(3 downto 0), HEX6);
 	disp_min_hi: bcd2seg port map(minutes(7 downto 4), HEX5);       -- SWMINUTE goes to HEX5(upper)
 	disp_min_lo: bcd2seg port map(minutes(3 downto 0), HEX4);       -- SWMINUTE goes to HEX4(lower)
@@ -83,17 +81,16 @@ begin
 	
 	process(state, B1, B2, B3)
 	begin
-		start_stop <= '0'; 		-- start_stop for sw initial 0, same for reset
+		start_stop <= '0'; 		-- start_stop for stopwatch - initial 0, same for reset
 		reset <= '0'; 
+		alarm_off <= '0';			-- signals to set alarm and to turn off (snooze)
+		set_alarm <= '0';
 		
-		inch <= '0'; 				-- signals to increment no value initially
+		inch <= '0'; 				-- signals to increment hours/minutes and alarm hours/minutes no value initially
 		incm <= '0';  
 		incha <= '0';
 		incma <= '0';
 			
-		alarm_off <= '0';			-- signals to set alarm and to turn off (snooze)
-		set_alarm <= '0';
-		
 		case state is
 		when time_state =>
 		
@@ -129,7 +126,7 @@ begin
 			end if;
 			
 			if am_pm = '0' then
-				dispHL <= "1010  1111";
+				dispHL <= "10101111";
 			else		
 				dispHL <= "10111111";
 			end if;
@@ -196,7 +193,7 @@ begin
 				nextstate <= set_alarm_min;
 			end if;
 			
-			if B3 = '1' and b3p = '0' then 
+			if B3 = '1' then 
 				incma <= '1';
 			end if;
 			
@@ -208,17 +205,17 @@ begin
 		
 		
 		when stop_watch =>
-			if B1 = '1' and b1p = '0' then 
+			if B1 = '1' then 
 				nextstate <= time_state;
 			else 
 				nextstate <= stop_watch;
 			end if;
 			
-			if B2 = '1' and b2p = '0' then 
+			if B2 = '1' then 
 				start_stop <= '1';
 			end if;
 			
-			if B3 = '1' and b3p = '0' then
+			if B3 = '1' then
 				reset <= '1';
 			end if;
 			
@@ -233,9 +230,6 @@ begin
 			state <= nextstate;
 			ring_alarm <= ring;
 		alarm_set_disp <= alarm_set;
-		b1p <= B1;
-		b2p <= B2;
-		b3p <= B3;
 		end if;
 	end process;
 	
